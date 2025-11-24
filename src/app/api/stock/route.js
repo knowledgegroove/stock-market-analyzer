@@ -126,6 +126,29 @@ export async function GET(request) {
             return NextResponse.json({ error: 'Stock not found' }, { status: 404 });
         }
 
+        console.error('Finnhub Metrics Debug:', JSON.stringify(basicMetrics)); // Use error to ensure visibility
+
+        // Calculate revenue fallback
+        let revenue = null;
+        if (basicMetrics.revenueTTM) {
+            revenue = basicMetrics.revenueTTM * 1000000;
+        } else if (basicMetrics.revenuePerShareTTM && profile.shareOutstanding) {
+            revenue = basicMetrics.revenuePerShareTTM * profile.shareOutstanding * 1000000;
+        } else if (basicMetrics.salesPerShareTTM && profile.shareOutstanding) {
+            // salesPerShareTTM is another common key
+            revenue = basicMetrics.salesPerShareTTM * profile.shareOutstanding * 1000000;
+        }
+
+        // Calculate PEG fallback
+        let peg = basicMetrics.pegRatioTTM || null;
+        const pe = basicMetrics.peBasicExclExtraTTM || basicMetrics.peTTM;
+        const growth = basicMetrics.revenueGrowthQuarterlyYoy || basicMetrics.revenueGrowthTTMYoy || basicMetrics.epsGrowth5Y || basicMetrics.epsGrowth3Y || basicMetrics.epsGrowthTTMYoy;
+
+        if (!peg && pe && growth && growth > 0) {
+            // Rough PEG estimation: PE / Growth Rate
+            peg = pe / growth;
+        }
+
         return NextResponse.json({
             symbol: symbol,
             companyName: profile.name,
@@ -139,11 +162,11 @@ export async function GET(request) {
             earnings: earnings,
             companyInfo: companyInfo,
             metrics: {
-                pe: basicMetrics.peBasicExclExtraTTM || basicMetrics.peTTM || null,
-                peg: basicMetrics.pegRatioTTM || null, // Finnhub often has pegRatioTTM
+                pe: pe || null,
+                peg: peg || null,
                 eps: basicMetrics.epsExclExtraItemsTTM || basicMetrics.epsTTM || null,
-                revenue: basicMetrics.revenueTTM ? basicMetrics.revenueTTM * 1000000 : null, // Finnhub revenue is in millions
-                revenueGrowth: basicMetrics.revenueGrowthQuarterlyYoy || basicMetrics.revenueGrowthTTMYoy || null,
+                revenue: revenue,
+                revenueGrowth: growth || null,
                 sharesOutstanding: basicMetrics.shareOutstanding || profile.shareOutstanding,
                 dividendYield: basicMetrics.dividendYieldIndicatedAnnual || basicMetrics.currentDividendYieldTTM || null,
                 beta: basicMetrics.beta || null
