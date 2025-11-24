@@ -1,0 +1,109 @@
+.sidebar {
+    width: 300px;
+    background: var(--card-bg);
+    border-left: 1px solid var(--card-border);
+    backdrop-filter: blur(12px);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+}
+
+.sectionTitle {
+    font-size: 0.9rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+}
+
+.trendingContainer {
+    height: 300px;
+    /* Adjust based on item height (~60px) * visible items (5) */
+    overflow: hidden;
+    position: relative;
+    mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+}
+
+.trendingTrack {
+    animation: scrollUp 60s linear infinite;
+}
+
+.trendingTrack:hover {
+    animation-play-state: paused;
+}
+
+@keyframes scrollUp {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(-50%);
+    }
+
+    /* Move up by half the height (original list) */
+}
+
+.stockList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.stockItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 0.5rem;
+    /* Add margin for spacing in track */
+}
+
+.stockItem:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(4px);
+}
+
+.symbol {
+    font-weight: 600;
+    color: var(--foreground);
+}
+
+.name {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.price {
+    font-weight: 600;
+    color: var(--foreground);
+}
+
+.change {
+    font-size: 0.8rem;
+}
+
+.positive {
+    color: #10b981;
+}
+
+.negative {
+    color: #ef4444;
+}
+
+.emptyState {
+    color: #666;
+    font-size: 0.9rem;
+    font-style: italic;
+    text-align: center;
+    padding: 1rem;
+}
