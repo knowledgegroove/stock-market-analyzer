@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styles from './page.module.css';
 import StockSearch from '@/components/StockSearch';
 import StockDisplay from '@/components/StockDisplay';
@@ -12,6 +12,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [watchlist, setWatchlist] = useState([]);
+  const resultsRef = useRef(null);
 
   // Load watchlist from localStorage on mount
   useEffect(() => {
@@ -25,6 +26,15 @@ export default function Home() {
   useEffect(() => {
     localStorage.setItem('stockWatchlist', JSON.stringify(watchlist));
   }, [watchlist]);
+
+  // Auto-scroll to results when data is loaded
+  useEffect(() => {
+    if (stockData && resultsRef.current) {
+      setTimeout(() => {
+        resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [stockData]);
 
   const handleSearch = async (symbol) => {
     setIsLoading(true);
@@ -88,13 +98,15 @@ export default function Home() {
             </div>
           )}
 
-          {stockData && (
-            <StockDisplay
-              data={stockData}
-              onAddToWatchlist={toggleWatchlist}
-              isInWatchlist={isInWatchlist(stockData.symbol)}
-            />
-          )}
+          <div ref={resultsRef} style={{ width: '100%' }}>
+            {stockData && (
+              <StockDisplay
+                data={stockData}
+                onAddToWatchlist={toggleWatchlist}
+                isInWatchlist={isInWatchlist(stockData.symbol)}
+              />
+            )}
+          </div>
         </div>
       </div>
 
