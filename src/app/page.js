@@ -31,7 +31,18 @@ export default function Home() {
   useEffect(() => {
     if (stockData && resultsRef.current) {
       setTimeout(() => {
-        resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Scroll to the container but leave some padding at the top
+        const yOffset = -100; // Offset to not scroll all the way to the top
+        const element = resultsRef.current;
+        const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
+
+        // Check if we actually need to scroll (if it's already in view, don't jump)
+        if (element.getBoundingClientRect().top > window.innerHeight * 0.8) {
+          window.scrollTo({ top: y, behavior: 'smooth' });
+        } else {
+          // Fallback to gentle scroll if needed
+          element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
       }, 100);
     }
   }, [stockData]);

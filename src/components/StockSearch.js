@@ -13,6 +13,7 @@ export default function StockSearch({ onSearch, isLoading, initialValue = '' }) 
     useEffect(() => {
         if (initialValue) {
             setSymbol(initialValue);
+            setShowDropdown(false); // Ensure dropdown is closed when value is set externally
         }
     }, [initialValue]);
 
@@ -27,6 +28,11 @@ export default function StockSearch({ onSearch, isLoading, initialValue = '' }) 
     }, []);
 
     useEffect(() => {
+        // Don't fetch if symbol matches initialValue (prevents reopening on selection)
+        if (symbol === initialValue && initialValue !== '') {
+            return;
+        }
+
         const fetchSuggestions = async () => {
             if (symbol.length < 2) {
                 setSuggestions([]);
@@ -51,7 +57,7 @@ export default function StockSearch({ onSearch, isLoading, initialValue = '' }) 
 
         const timeoutId = setTimeout(fetchSuggestions, 300);
         return () => clearTimeout(timeoutId);
-    }, [symbol]);
+    }, [symbol, initialValue]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
