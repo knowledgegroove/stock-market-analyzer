@@ -29,11 +29,12 @@ export async function GET(request) {
         );
         const profile = await profileRes.json();
 
-        // 3. Fetch Fundamental Data from Alpha Vantage (Better accuracy for metrics)
-        const avOverviewRes = await fetch(
-            `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${symbol}&apikey=${alphaKey}`
+        // 3. Fetch Basic Financials from Finnhub (More reliable than Alpha Vantage free tier)
+        const metricsRes = await fetch(
+            `https://finnhub.io/api/v1/stock/metric?symbol=${symbol}&metric=all&token=${apiKey}`
         );
-        const avData = await avOverviewRes.json();
+        const metricsData = await metricsRes.json();
+        const basicMetrics = metricsData.metric || {};
 
         // 4. Fetch Company News from Finnhub (Last 7 days)
         const today = new Date();
@@ -45,35 +46,41 @@ export async function GET(request) {
         );
         const newsData = await newsRes.json();
 
-        // 5. Fetch Earnings from Alpha Vantage (More accurate historical data)
-        const avEarningsRes = await fetch(
-            `https://www.alphavantage.co/query?function=EARNINGS&symbol=${symbol}&apikey=${alphaKey}`
-        );
-        const avEarningsData = await avEarningsRes.json();
+        // 5. Fetch Earnings from Alpha Vantage (Keep for earnings history if possible, or handle gracefully)
+        let earnings = [];
+        try {
+            const avEarningsRes = await fetch(
+                `https://www.alphavantage.co/query?function=EARNINGS&symbol=${symbol}&apikey=${alphaKey}`
+            );
+            const avEarningsData = await avEarningsRes.json();
 
-        // Transform Alpha Vantage earnings to match our format
-        const earnings = (avEarningsData.quarterlyEarnings || []).slice(0, 4).map((q, idx) => {
-            const actual = parseFloat(q.reportedEPS);
-            const estimate = parseFloat(q.estimatedEPS);
-            const surprise = parseFloat(q.surprise);
-            const surprisePercent = parseFloat(q.surprisePercentage);
+            if (avEarningsData.quarterlyEarnings) {
+                earnings = avEarningsData.quarterlyEarnings.slice(0, 4).map((q, idx) => {
+                    const actual = parseFloat(q.reportedEPS);
+                    const estimate = parseFloat(q.estimatedEPS);
+                    const surprise = parseFloat(q.surprise);
+                    const surprisePercent = parseFloat(q.surprisePercentage);
 
-            // Determine quarter from fiscal date
-            const fiscalDate = new Date(q.fiscalDateEnding);
-            const month = fiscalDate.getMonth() + 1;
-            let quarter = Math.ceil(month / 3);
+                    // Determine quarter from fiscal date
+                    const fiscalDate = new Date(q.fiscalDateEnding);
+                    const month = fiscalDate.getMonth() + 1;
+                    let quarter = Math.ceil(month / 3);
 
-            return {
-                actual: isNaN(actual) ? null : actual,
-                estimate: isNaN(estimate) ? null : estimate,
-                period: q.reportedDate,
-                quarter: quarter,
-                surprise: isNaN(surprise) ? (actual && estimate ? actual - estimate : null) : surprise,
-                surprisePercent: isNaN(surprisePercent) ? (actual && estimate ? ((actual - estimate) / Math.abs(estimate)) * 100 : null) : surprisePercent,
-                symbol: symbol,
-                year: fiscalDate.getFullYear()
-            };
-        });
+                    return {
+                        actual: isNaN(actual) ? null : actual,
+                        estimate: isNaN(estimate) ? null : estimate,
+                        period: q.reportedDate,
+                        quarter: quarter,
+                        surprise: isNaN(surprise) ? (actual && estimate ? actual - estimate : null) : surprise,
+                        surprisePercent: isNaN(surprisePercent) ? (actual && estimate ? ((actual - estimate) / Math.abs(estimate)) * 100 : null) : surprisePercent,
+                        symbol: symbol,
+                        year: fiscalDate.getFullYear()
+                    };
+                });
+            }
+        } catch (e) {
+            console.error('Alpha Vantage Earnings failed:', e);
+        }
 
         // 6. Fetch Company Info from Wikipedia
         let companyInfo = null;
@@ -124,21 +131,21 @@ export async function GET(request) {
             price: quote.c,
             change: quote.d,
             changePercent: quote.dp,
-            marketCap: parseFloat(avData.MarketCapitalization) || profile.marketCapitalization * 1000000,
-            week52High: parseFloat(avData['52WeekHigh']) || quote.h,
-            week52Low: parseFloat(avData['52WeekLow']) || quote.l,
+            marketCap: profile.marketCapitalization * 1000000, // Finnhub gives market cap in millions
+            week52High: basicMetrics['52WeekHigh'] || quote.h,
+            week52Low: basicMetrics['52WeekLow'] || quote.l,
             news: newsData.slice(0, 5),
             earnings: earnings,
             companyInfo: companyInfo,
             metrics: {
-                pe: parseFloat(avData.PERatio) || null,
-                peg: parseFloat(avData.PEGRatio) || null,
-                eps: parseFloat(avData.EPS) || null,
-                revenue: parseFloat(avData.RevenueTTM) || null,
-                revenueGrowth: parseFloat(avData.QuarterlyRevenueGrowthYOY) * 100 || null,
-                sharesOutstanding: parseFloat(avData.SharesOutstanding) / 1000000 || profile.shareOutstanding,
-                dividendYield: parseFloat(avData.DividendYield) * 100 || null,
-                beta: parseFloat(avData.Beta) || null
+                pe: basicMetrics.peBasicExclExtraTTM || null,
+                peg: null, // Finnhub basic doesn't always have PEG, leave null or calculate if possible
+                eps: basicMetrics.epsExclExtraItemsTTM || null,
+                revenue: basicMetrics.revenueTTM ? basicMetrics.revenueTTM * 1000000 : null, // Finnhub revenue is in millions
+                revenueGrowth: basicMetrics.revenueGrowthQuarterlyYoy || null,
+                sharesOutstanding: profile.shareOutstanding,
+                dividendYield: basicMetrics.dividendYieldIndicatedAnnual || null,
+                beta: basicMetrics.beta || null
             }
         });
 
