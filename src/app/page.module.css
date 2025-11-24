@@ -43,18 +43,19 @@
 }
 
 .title {
-  font-size: 5rem;
-  font-weight: 800;
+  font-size: 4rem;
+  /* Slightly smaller for elegance */
+  font-weight: 700;
   text-align: center;
   margin-bottom: 0.5rem;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  background: linear-gradient(to bottom, #fff 40%, #a1a1aa);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  background: linear-gradient(to bottom, #ffffff 30%, #94a3b8);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: slideDown 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-  text-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+  animation: slideDown 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+  text-shadow: 0 0 60px rgba(255, 255, 255, 0.05);
 }
 
 .highlight {
@@ -63,16 +64,18 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   position: relative;
+  font-weight: 800;
 }
 
 .subtitle {
-  font-size: 1.25rem;
-  color: #a1a1aa;
+  font-size: 1.1rem;
+  color: #71717a;
+  /* Darker grey for subtlety */
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 3.5rem;
   font-weight: 400;
-  animation: slideDown 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s backwards;
-  letter-spacing: 0.01em;
+  animation: slideDown 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s backwards;
+  letter-spacing: 0.02em;
 }
 
 .searchWrapper {

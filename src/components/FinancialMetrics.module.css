@@ -18,32 +18,37 @@
 }
 
 .card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    padding: 1rem;
+    background: transparent;
+    border: none;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    /* Subtle divider instead of border */
+    padding: 0.5rem 1rem;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.2rem;
     transition: all 0.2s ease;
 }
 
 .card:hover {
-    background: rgba(255, 255, 255, 0.05);
-    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.02);
+    border-left-color: rgba(255, 255, 255, 0.3);
 }
 
 .label {
-    font-size: 0.8rem;
-    color: #666;
+    font-size: 0.75rem;
+    color: #52525b;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    font-weight: 500;
 }
 
 .value {
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: 1.5rem;
+    /* Larger */
+    font-weight: 300;
+    /* Thinner */
     color: var(--foreground);
+    letter-spacing: -0.02em;
 }
 
 @keyframes fadeIn {
