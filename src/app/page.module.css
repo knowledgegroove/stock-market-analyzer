@@ -1,7 +1,6 @@
 .main {
   min-height: 100vh;
   display: flex;
-  background: var(--background);
   position: relative;
   overflow: hidden;
 }
