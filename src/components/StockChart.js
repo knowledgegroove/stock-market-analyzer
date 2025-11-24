@@ -89,7 +89,9 @@ export default function StockChart({ symbol, basePrice }) {
     const isPositive = data.length > 0 && data[data.length - 1].price >= data[0].price;
     const color = isPositive ? '#10b981' : '#ef4444';
 
-    if (!isMounted) {
+    if (!isMounted) return <div className={styles.chartContainer} style={{ height: '400px', background: 'rgba(255,255,255,0.02)' }} />;
+
+    if (isLoading && data.length === 0) {
         return (
             <div className={styles.chartContainer}>
                 <div className={styles.chartHeader}>
@@ -102,15 +104,10 @@ export default function StockChart({ symbol, basePrice }) {
         );
     }
 
-    if (isLoading && data.length === 0) {
+    if (!data || data.length === 0) {
         return (
             <div className={styles.chartContainer}>
-                <div className={styles.chartHeader}>
-                    <h3 className={styles.title}>Price Action</h3>
-                </div>
-                <div style={{ height: '90%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>
-                    Loading chart...
-                </div>
+                <div className={styles.noData}>No chart data available</div>
             </div>
         );
     }
@@ -131,7 +128,6 @@ export default function StockChart({ symbol, basePrice }) {
                     ))}
                 </div>
             </div>
-
             <ResponsiveContainer width="100%" height="90%">
                 <AreaChart data={data}>
                     <defs>
@@ -178,6 +174,6 @@ export default function StockChart({ symbol, basePrice }) {
                     />
                 </AreaChart>
             </ResponsiveContainer>
-        </div>
+        </div >
     );
 }

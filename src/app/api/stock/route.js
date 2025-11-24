@@ -35,6 +35,7 @@ export async function GET(request) {
         );
         const metricsData = await metricsRes.json();
         const basicMetrics = metricsData.metric || {};
+        console.log('Finnhub Metrics Keys:', Object.keys(basicMetrics)); // Debug: Check available keys
 
         // 4. Fetch Company News from Finnhub (Last 7 days)
         const today = new Date();
@@ -138,13 +139,13 @@ export async function GET(request) {
             earnings: earnings,
             companyInfo: companyInfo,
             metrics: {
-                pe: basicMetrics.peBasicExclExtraTTM || null,
-                peg: null, // Finnhub basic doesn't always have PEG, leave null or calculate if possible
-                eps: basicMetrics.epsExclExtraItemsTTM || null,
+                pe: basicMetrics.peBasicExclExtraTTM || basicMetrics.peTTM || null,
+                peg: basicMetrics.pegRatioTTM || null, // Finnhub often has pegRatioTTM
+                eps: basicMetrics.epsExclExtraItemsTTM || basicMetrics.epsTTM || null,
                 revenue: basicMetrics.revenueTTM ? basicMetrics.revenueTTM * 1000000 : null, // Finnhub revenue is in millions
-                revenueGrowth: basicMetrics.revenueGrowthQuarterlyYoy || null,
-                sharesOutstanding: profile.shareOutstanding,
-                dividendYield: basicMetrics.dividendYieldIndicatedAnnual || null,
+                revenueGrowth: basicMetrics.revenueGrowthQuarterlyYoy || basicMetrics.revenueGrowthTTMYoy || null,
+                sharesOutstanding: basicMetrics.shareOutstanding || profile.shareOutstanding,
+                dividendYield: basicMetrics.dividendYieldIndicatedAnnual || basicMetrics.currentDividendYieldTTM || null,
                 beta: basicMetrics.beta || null
             }
         });
