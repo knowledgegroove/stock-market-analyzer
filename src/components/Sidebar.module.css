@@ -26,8 +26,8 @@
     height: 320px;
     overflow: hidden;
     position: relative;
-    mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
-    padding: 0.5rem 0;
+    mask-image: linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%);
+    padding: 0;
 }
 
 .trendingTrack {

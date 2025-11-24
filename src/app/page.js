@@ -31,8 +31,8 @@ export default function Home() {
   useEffect(() => {
     if (stockData && resultsRef.current) {
       setTimeout(() => {
-        // Scroll to the container but leave some padding at the top
-        const yOffset = -100; // Offset to not scroll all the way to the top
+        // Scroll to align company name with "Trending Stocks" in sidebar
+        const yOffset = -180; // Adjusted offset to align with sidebar section title
         const element = resultsRef.current;
         const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
 
