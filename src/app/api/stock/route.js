@@ -122,6 +122,8 @@ export async function GET(request) {
             symbol: symbol,
             companyName: profile.name,
             price: quote.c,
+            change: quote.d,
+            changePercent: quote.dp,
             marketCap: parseFloat(avData.MarketCapitalization) || profile.marketCapitalization * 1000000,
             week52High: parseFloat(avData['52WeekHigh']) || quote.h,
             week52Low: parseFloat(avData['52WeekLow']) || quote.l,
