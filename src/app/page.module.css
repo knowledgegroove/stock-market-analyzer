@@ -1,8 +1,11 @@
 .main {
   min-height: 100vh;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   position: relative;
   overflow: hidden;
+  height: 100vh;
+  /* Lock height to viewport for independent scrolling */
 }
 
 /* Ambient background glow for the main area */
@@ -19,7 +22,6 @@
 }
 
 .content {
-  flex: 1;
   padding: 2rem;
   display: flex;
   flex-direction: column;
@@ -27,6 +29,8 @@
   overflow-y: auto;
   position: relative;
   z-index: 1;
+  height: 100vh;
+  /* Independent scroll */
 }
 
 .container {

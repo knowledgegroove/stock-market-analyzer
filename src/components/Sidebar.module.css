@@ -1,15 +1,15 @@
 .sidebar {
     width: 320px;
-    background: rgba(10, 10, 10, 0.3);
+    background: rgba(10, 10, 10, 0.2);
+    /* Increased transparency */
     border-right: 1px solid rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
+    backdrop-filter: blur(12px);
+    /* Reduced blur slightly to see mesh better */
     padding: 2rem 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 2.5rem;
     height: 100vh;
-    position: sticky;
-    top: 0;
     overflow-y: auto;
     z-index: 10;
 }

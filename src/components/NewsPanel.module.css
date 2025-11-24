@@ -1,17 +1,15 @@
 .panel {
     width: 350px;
-    background: var(--card-bg);
+    background: rgba(20, 20, 20, 0.2);
+    /* Increased transparency */
     border-right: 1px solid var(--card-border);
     backdrop-filter: blur(12px);
     padding: 2rem;
-    padding-top: 6rem;
-    /* Added top padding for alignment */
+    /* Removed padding-top hack */
     display: flex;
     flex-direction: column;
     gap: 2rem;
     height: 100vh;
-    position: sticky;
-    top: 0;
     overflow-y: auto;
     border-left: 1px solid var(--card-border);
     border-right: none;
