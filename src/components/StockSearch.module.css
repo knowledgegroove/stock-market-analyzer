@@ -4,46 +4,47 @@
     width: 100%;
     max-width: 600px;
     margin: 0 auto;
-    padding: 2rem;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 16px;
-    backdrop-filter: blur(12px);
-    box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
+    padding: 0.5rem;
+    position: relative;
 }
 
 .input {
     flex: 1;
-    padding: 1rem 1.5rem;
+    padding: 1.2rem 2rem;
     font-size: 1.1rem;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(20, 20, 20, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
+    border-radius: 50px;
     color: var(--foreground);
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .input:focus {
     outline: none;
-    border-color: var(--primary);
-    background: rgba(255, 255, 255, 0.05);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.5);
+    background: rgba(30, 30, 30, 0.8);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
 }
 
 .button {
-    padding: 0 2rem;
+    padding: 0 2.5rem;
     font-size: 1rem;
     font-weight: 600;
     color: white;
     background: var(--primary);
-    border-radius: 12px;
-    transition: all 0.2s ease;
+    border-radius: 50px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .button:hover {
     background: #2563eb;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.4);
 }
 
 .button:active {
@@ -53,49 +54,51 @@
 .button:disabled {
     opacity: 0.7;
     cursor: not-allowed;
+    transform: none;
 }
 
 .dropdown {
     position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    margin-top: 0.5rem;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 12px;
-    backdrop-filter: blur(12px);
+    top: calc(100% + 1rem);
+    left: 1rem;
+    right: 1rem;
+    background: rgba(20, 20, 20, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    backdrop-filter: blur(20px);
     overflow: hidden;
-    z-index: 50;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    z-index: 100;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    padding: 0.5rem;
 }
 
 .dropdownItem {
-    padding: 0.8rem 1.5rem;
+    padding: 1rem 1.5rem;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: background 0.2s ease;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.dropdownItem:last-child {
-    border-bottom: none;
+    transition: all 0.2s ease;
+    border-radius: 16px;
+    margin-bottom: 2px;
 }
 
 .dropdownItem:hover {
     background: rgba(255, 255, 255, 0.1);
+    transform: translateX(4px);
 }
 
 .itemSymbol {
     font-weight: 700;
     color: var(--primary);
+    background: rgba(59, 130, 246, 0.1);
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
 }
 
 .itemDesc {
     font-size: 0.9rem;
-    color: #888;
+    color: #a1a1aa;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
