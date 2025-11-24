@@ -3,11 +3,18 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from './StockSearch.module.css';
 
-export default function StockSearch({ onSearch, isLoading }) {
-    const [symbol, setSymbol] = useState('');
+export default function StockSearch({ onSearch, isLoading, initialValue = '' }) {
+    const [symbol, setSymbol] = useState(initialValue);
     const [suggestions, setSuggestions] = useState([]);
     const [showDropdown, setShowDropdown] = useState(false);
     const wrapperRef = useRef(null);
+
+    // Update symbol when initialValue changes (e.g. from sidebar selection)
+    useEffect(() => {
+        if (initialValue) {
+            setSymbol(initialValue);
+        }
+    }, [initialValue]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {

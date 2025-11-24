@@ -89,7 +89,11 @@ export default function Home() {
           </p>
 
           <div className={styles.searchWrapper}>
-            <StockSearch onSearch={handleSearch} isLoading={isLoading} />
+            <StockSearch
+              onSearch={handleSearch}
+              isLoading={isLoading}
+              initialValue={stockData?.symbol || ''}
+            />
           </div>
 
           {error && (
