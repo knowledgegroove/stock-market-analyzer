@@ -30,19 +30,10 @@ export default function Home() {
   // Auto-scroll to results when data is loaded
   useEffect(() => {
     if (stockData && resultsRef.current) {
+      // Small delay to ensure DOM is updated
       setTimeout(() => {
-        // Scroll to align company name with "Trending Stocks" in sidebar
-        const yOffset = -180; // Adjusted offset to align with sidebar section title
-        const element = resultsRef.current;
-        const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
-
-        // Check if we actually need to scroll (if it's already in view, don't jump)
-        if (element.getBoundingClientRect().top > window.innerHeight * 0.8) {
-          window.scrollTo({ top: y, behavior: 'smooth' });
-        } else {
-          // Fallback to gentle scroll if needed
-          element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
+        // Scroll so the results start at the top of the viewport, hiding the search bar
+        resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
     }
   }, [stockData]);

@@ -225,7 +225,7 @@ ${businessDescription ? `**About:** ${businessDescription}\n\n` : ''}${foundingI
             <div className={styles.header}>
                 <div className={styles.headerLeft}>
                     <div className={styles.symbol}>{data.symbol}</div>
-                    <div className={styles.companyName}>{data.companyName}</div>
+                    <div id="selected-company-name" className={styles.companyName}>{data.companyName}</div>
                     <button
                         className={styles.companyInfoButton}
                         onClick={() => setShowCompanyInfo(!showCompanyInfo)}

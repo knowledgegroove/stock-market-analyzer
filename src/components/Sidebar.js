@@ -68,7 +68,7 @@ export default function Sidebar({ watchlist, onSelectStock }) {
     return (
         <aside className={styles.sidebar}>
             <div>
-                <h3 className={styles.sectionTitle}>Trending Stocks</h3>
+                <h3 id="sidebar-trending-title" className={styles.sectionTitle}>Trending Stocks</h3>
                 <div className={styles.trendingContainer}>
                     <div className={styles.trendingTrack}>
                         {/* Duplicate list for seamless loop */}
