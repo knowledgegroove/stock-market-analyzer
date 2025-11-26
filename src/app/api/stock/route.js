@@ -16,12 +16,37 @@ export async function GET(request) {
 
     try {
         const alphaKey = process.env.ALPHA_VANTAGE_API_KEY;
+        const eodKey = '69273da55e8d82.29373463'; // User provided key
 
-        // 1. Fetch Quote from Finnhub (Price, High, Low)
-        const quoteRes = await fetch(
-            `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`
-        );
-        const quote = await quoteRes.json();
+        // 1. Fetch Quote from EODHD (Primary for Price)
+        // Fallback to Finnhub if EODHD fails
+        let quote = null;
+        try {
+            const eodRes = await fetch(
+                `https://eodhistoricaldata.com/api/real-time/${symbol}.US?api_token=${eodKey}&fmt=json`
+            );
+            const eodData = await eodRes.json();
+            if (eodData && (eodData.close || eodData.previousClose)) {
+                quote = {
+                    c: eodData.close,
+                    d: eodData.change,
+                    dp: eodData.change_p,
+                    h: eodData.high,
+                    l: eodData.low,
+                    o: eodData.open,
+                    pc: eodData.previousClose
+                };
+            }
+        } catch (e) {
+            console.error('EODHD Quote failed, falling back to Finnhub:', e);
+        }
+
+        if (!quote) {
+            const quoteRes = await fetch(
+                `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`
+            );
+            quote = await quoteRes.json();
+        }
 
         // 2. Fetch Company Profile from Finnhub (Name, Market Cap)
         const profileRes = await fetch(

@@ -1,17 +1,26 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styles from './StockDisplay.module.css';
 import StockChart from './StockChart';
 import FinancialMetrics from './FinancialMetrics';
 import EarningsSection from './EarningsSection';
 import NewsSummary from './NewsSummary';
+import AIPredictionPanel from './AIPredictionPanel';
 
 
 export default function StockDisplay({ data, onAddToWatchlist, isInWatchlist }) {
     const [showTrends, setShowTrends] = useState(false);
     const [showCompanyInfo, setShowCompanyInfo] = useState(false);
+    const [showPrediction, setShowPrediction] = useState(false);
     const [wikiData, setWikiData] = useState(null);
+    const predictionRef = useRef(null);
+
+    useEffect(() => {
+        if (showPrediction && predictionRef.current) {
+            predictionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, [showPrediction]);
 
     // Fetch Wikipedia data when company info is opened
     useEffect(() => {
@@ -235,6 +244,12 @@ ${businessDescription ? `**About:** ${businessDescription}\n\n` : ''}${foundingI
                 </div>
                 <div className={styles.buttonGroup}>
                     <button
+                        className={styles.aiButton}
+                        onClick={() => setShowPrediction(true)}
+                    >
+                        ✨ AI Predict
+                    </button>
+                    <button
                         className={styles.trendsButton}
                         onClick={() => setShowTrends(!showTrends)}
                     >
@@ -294,6 +309,16 @@ ${businessDescription ? `**About:** ${businessDescription}\n\n` : ''}${foundingI
             )}
 
             <NewsSummary news={data.news} symbol={data.symbol} />
+
+            {showPrediction && (
+                <div ref={predictionRef}>
+                    <AIPredictionPanel
+                        symbol={data.symbol}
+                        currentPrice={data.price}
+                        onClose={() => setShowPrediction(false)}
+                    />
+                </div>
+            )}
 
             <div className={styles.grid}>
                 <div className={styles.card}>
