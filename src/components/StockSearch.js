@@ -43,11 +43,20 @@ export default function StockSearch({ onSearch, isLoading, initialValue = '' }) 
                 const response = await fetch(`/api/search?q=${encodeURIComponent(symbol)}`);
                 const data = await response.json();
                 if (data.result) {
-                    // Filter for common stock types to reduce noise
+                    // Filter for common stock types and deduplicate by symbol
                     const filtered = data.result
-                        .filter(item => !item.symbol.includes('.')) // Prefer primary listings
-                        .slice(0, 5);
-                    setSuggestions(filtered);
+                        .filter(item => !item.symbol.includes('.')); // Prefer primary listings
+
+                    // Deduplicate by symbol using a Map
+                    const uniqueMap = new Map();
+                    filtered.forEach(item => {
+                        if (!uniqueMap.has(item.symbol)) {
+                            uniqueMap.set(item.symbol, item);
+                        }
+                    });
+
+                    const uniqueResults = Array.from(uniqueMap.values()).slice(0, 5);
+                    setSuggestions(uniqueResults);
                     setShowDropdown(true);
                 }
             } catch (error) {

@@ -205,29 +205,31 @@ export default function Home() {
             </div>
           </div>
 
-          <div className={styles.searchWrapper}>
-            <StockSearch
-              onSearch={handleSearch}
-              isLoading={isLoading}
-              initialValue={stockData?.symbol || ''}
-            />
-          </div>
-
-          {error && (
-            <div className={styles.error}>
-              {error}
-            </div>
-          )}
-
-          <div ref={resultsRef} style={{ width: '100%' }}>
-            {stockData && (
-              <StockDisplay
-                data={stockData}
-                onAddToWatchlist={toggleWatchlist}
-                isInWatchlist={isInWatchlist(stockData.symbol)}
+          <>
+            <div className={styles.searchWrapper}>
+              <StockSearch
+                onSearch={handleSearch}
+                isLoading={isLoading}
+                initialValue={stockData?.symbol || ''}
               />
+            </div>
+
+            {error && (
+              <div className={styles.error}>
+                {error}
+              </div>
             )}
-          </div>
+
+            <div ref={resultsRef} style={{ width: '100%' }}>
+              {stockData && (
+                <StockDisplay
+                  data={stockData}
+                  onAddToWatchlist={toggleWatchlist}
+                  isInWatchlist={isInWatchlist(stockData.symbol)}
+                />
+              )}
+            </div>
+          </>
         </div>
       </div>
 

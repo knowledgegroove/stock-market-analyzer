@@ -118,6 +118,21 @@
   letter-spacing: 0.02em;
 }
 
+.tabNavigation {
+  width: 100%;
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #8b5cf6, transparent);
+}
+
 .searchWrapper {
   width: 100%;
   display: flex;
