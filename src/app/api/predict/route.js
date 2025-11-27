@@ -189,12 +189,35 @@ function generateSimulation(symbol, currentPrice) {
     // Shuffle and pick 3 sources
     const selectedSources = sources.sort(() => 0.5 - Math.random()).slice(0, 3);
 
+    // Generate Graph Data (5 Days) for simulation
+    const predictionGraph = [];
+    const days = 5;
+    const step = (predictedPrice - currentPrice) / days;
+
+    // Add today
+    predictionGraph.push({ day: 'Today', price: currentPrice });
+
+    for (let i = 1; i <= days; i++) {
+        // Add some random noise to the path
+        const noise = (Math.random() - 0.5) * (volatility * currentPrice * 0.5);
+        const price = currentPrice + (step * i) + noise;
+
+        const date = new Date();
+        date.setDate(date.getDate() + i);
+        const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+
+        predictionGraph.push({ day: dayName, price: price });
+    }
+    // Ensure last point matches predicted
+    predictionGraph[days].price = predictedPrice;
+
     return {
         symbol,
         currentPrice,
         predictedPrice,
         confidence,
         reasoning,
-        sources: selectedSources
+        sources: selectedSources,
+        predictionGraph
     };
 }

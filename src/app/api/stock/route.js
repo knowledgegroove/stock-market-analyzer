@@ -16,10 +16,9 @@ export async function GET(request) {
 
     try {
         const alphaKey = process.env.ALPHA_VANTAGE_API_KEY;
-        const eodKey = '69273da55e8d82.29373463'; // User provided key
+        const eodKey = process.env.EODHD_API_KEY;
 
         // 1. Fetch Quote from EODHD (Primary for Price)
-        // Fallback to Finnhub if EODHD fails
         let quote = null;
         try {
             const eodRes = await fetch(
@@ -54,15 +53,40 @@ export async function GET(request) {
         );
         const profile = await profileRes.json();
 
-        // 3. Fetch Basic Financials from Finnhub (More reliable than Alpha Vantage free tier)
+        // 3. Fetch Fundamentals from EODHD (Primary for Metrics)
+        let fundamentals = {};
+        try {
+            const fundRes = await fetch(
+                `https://eodhistoricaldata.com/api/fundamentals/${symbol}.US?api_token=${eodKey}&fmt=json`
+            );
+            const fundData = await fundRes.json();
+            if (fundData && fundData.Highlights) {
+                fundamentals = {
+                    pe: parseFloat(fundData.Highlights.PERatio) || null,
+                    peg: parseFloat(fundData.Highlights.PEGRatio) || null,
+                    eps: parseFloat(fundData.Highlights.DilutedEpsTTM) || null,
+                    revenue: parseFloat(fundData.Highlights.RevenueTTM) || null,
+                    revenueGrowth: parseFloat(fundData.Highlights.RevenueGrowthTTMYoy) || null,
+                    beta: parseFloat(fundData.Technicals?.Beta) || null,
+                    dividendYield: parseFloat(fundData.Highlights.DividendYield) || null,
+                    sharesOutstanding: parseFloat(fundData.SharesStats?.SharesOutstanding) || null,
+                    marketCap: parseFloat(fundData.Highlights.MarketCapitalization) || null,
+                    week52High: parseFloat(fundData.Technicals?.['52WeekHigh']) || null,
+                    week52Low: parseFloat(fundData.Technicals?.['52WeekLow']) || null
+                };
+            }
+        } catch (e) {
+            console.error('EODHD Fundamentals failed:', e);
+        }
+
+        // 4. Fetch Basic Financials from Finnhub (Fallback for Metrics)
         const metricsRes = await fetch(
             `https://finnhub.io/api/v1/stock/metric?symbol=${symbol}&metric=all&token=${apiKey}`
         );
         const metricsData = await metricsRes.json();
         const basicMetrics = metricsData.metric || {};
-        console.log('Finnhub Metrics Keys:', Object.keys(basicMetrics)); // Debug: Check available keys
 
-        // 4. Fetch Company News from Finnhub (Last 7 days)
+        // 5. Fetch Company News from Finnhub (Last 7 days)
         const today = new Date();
         const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
         const formatDate = (date) => date.toISOString().split('T')[0];
@@ -72,7 +96,7 @@ export async function GET(request) {
         );
         const newsData = await newsRes.json();
 
-        // 5. Fetch Earnings from Alpha Vantage (Keep for earnings history if possible, or handle gracefully)
+        // 6. Fetch Earnings from Alpha Vantage
         let earnings = [];
         try {
             const avEarningsRes = await fetch(
@@ -87,7 +111,6 @@ export async function GET(request) {
                     const surprise = parseFloat(q.surprise);
                     const surprisePercent = parseFloat(q.surprisePercentage);
 
-                    // Determine quarter from fiscal date
                     const fiscalDate = new Date(q.fiscalDateEnding);
                     const month = fiscalDate.getMonth() + 1;
                     let quarter = Math.ceil(month / 3);
@@ -108,10 +131,9 @@ export async function GET(request) {
             console.error('Alpha Vantage Earnings failed:', e);
         }
 
-        // 6. Fetch Company Info from Wikipedia
+        // 7. Fetch Company Info from Wikipedia
         let companyInfo = null;
         try {
-            // Try with company name variations
             const wikiTitles = [
                 profile.name,
                 `${profile.name} Inc.`,
@@ -132,18 +154,12 @@ export async function GET(request) {
                     const pageId = Object.keys(pages)[0];
                     if (pageId !== '-1' && pages[pageId].extract) {
                         companyInfo = pages[pageId].extract;
-                        console.log(`Wikipedia data found for: ${title}`);
                         break;
                     }
                 }
             }
-
-            if (!companyInfo) {
-                console.log(`No Wikipedia data found for: ${profile.name}`);
-            }
         } catch (error) {
             console.error('Wikipedia fetch failed:', error);
-            // Continue without Wikipedia data
         }
 
         // Check if we got valid data
@@ -151,26 +167,24 @@ export async function GET(request) {
             return NextResponse.json({ error: 'Stock not found' }, { status: 404 });
         }
 
-        console.error('Finnhub Metrics Debug:', JSON.stringify(basicMetrics)); // Use error to ensure visibility
-
-        // Calculate revenue fallback
-        let revenue = null;
-        if (basicMetrics.revenueTTM) {
-            revenue = basicMetrics.revenueTTM * 1000000;
-        } else if (basicMetrics.revenuePerShareTTM && profile.shareOutstanding) {
-            revenue = basicMetrics.revenuePerShareTTM * profile.shareOutstanding * 1000000;
-        } else if (basicMetrics.salesPerShareTTM && profile.shareOutstanding) {
-            // salesPerShareTTM is another common key
-            revenue = basicMetrics.salesPerShareTTM * profile.shareOutstanding * 1000000;
+        // Calculate revenue fallback if EODHD failed
+        let revenue = fundamentals.revenue;
+        if (!revenue) {
+            if (basicMetrics.revenueTTM) {
+                revenue = basicMetrics.revenueTTM * 1000000;
+            } else if (basicMetrics.revenuePerShareTTM && profile.shareOutstanding) {
+                revenue = basicMetrics.revenuePerShareTTM * profile.shareOutstanding * 1000000;
+            } else if (basicMetrics.salesPerShareTTM && profile.shareOutstanding) {
+                revenue = basicMetrics.salesPerShareTTM * profile.shareOutstanding * 1000000;
+            }
         }
 
-        // Calculate PEG fallback
-        let peg = basicMetrics.pegRatioTTM || null;
-        const pe = basicMetrics.peBasicExclExtraTTM || basicMetrics.peTTM;
-        const growth = basicMetrics.revenueGrowthQuarterlyYoy || basicMetrics.revenueGrowthTTMYoy || basicMetrics.epsGrowth5Y || basicMetrics.epsGrowth3Y || basicMetrics.epsGrowthTTMYoy;
+        // Calculate PEG fallback if EODHD failed
+        let peg = fundamentals.peg || basicMetrics.pegRatioTTM || null;
+        const pe = fundamentals.pe || basicMetrics.peBasicExclExtraTTM || basicMetrics.peTTM;
+        const growth = fundamentals.revenueGrowth || basicMetrics.revenueGrowthQuarterlyYoy || basicMetrics.revenueGrowthTTMYoy || basicMetrics.epsGrowth5Y || basicMetrics.epsGrowth3Y || basicMetrics.epsGrowthTTMYoy;
 
         if (!peg && pe && growth && growth > 0) {
-            // Rough PEG estimation: PE / Growth Rate
             peg = pe / growth;
         }
 
@@ -180,26 +194,26 @@ export async function GET(request) {
             price: quote.c,
             change: quote.d,
             changePercent: quote.dp,
-            marketCap: profile.marketCapitalization * 1000000, // Finnhub gives market cap in millions
-            week52High: basicMetrics['52WeekHigh'] || quote.h,
-            week52Low: basicMetrics['52WeekLow'] || quote.l,
+            marketCap: fundamentals.marketCap || (profile.marketCapitalization * 1000000),
+            week52High: fundamentals.week52High || basicMetrics['52WeekHigh'] || quote.h,
+            week52Low: fundamentals.week52Low || basicMetrics['52WeekLow'] || quote.l,
             news: newsData.slice(0, 5),
             earnings: earnings,
             companyInfo: companyInfo,
             metrics: {
                 pe: pe || null,
                 peg: peg || null,
-                eps: basicMetrics.epsExclExtraItemsTTM || basicMetrics.epsTTM || null,
+                eps: fundamentals.eps || basicMetrics.epsExclExtraItemsTTM || basicMetrics.epsTTM || null,
                 revenue: revenue,
                 revenueGrowth: growth || null,
-                sharesOutstanding: basicMetrics.shareOutstanding || profile.shareOutstanding,
-                dividendYield: basicMetrics.dividendYieldIndicatedAnnual || basicMetrics.currentDividendYieldTTM || null,
-                beta: basicMetrics.beta || null
+                sharesOutstanding: fundamentals.sharesOutstanding || basicMetrics.shareOutstanding || profile.shareOutstanding,
+                dividendYield: fundamentals.dividendYield || basicMetrics.dividendYieldIndicatedAnnual || basicMetrics.currentDividendYieldTTM || null,
+                beta: fundamentals.beta || basicMetrics.beta || null
             }
         });
 
     } catch (error) {
-        console.error('Finnhub API error:', error);
+        console.error('API error:', error);
         return NextResponse.json({ error: 'Failed to fetch data' }, { status: 500 });
     }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import AuthButton from './AuthButton';
 import styles from './Sidebar.module.css';
 
 const TRENDING_SYMBOLS = [
@@ -16,7 +17,7 @@ const TRENDING_SYMBOLS = [
     { symbol: 'GOOGL', name: 'Alphabet' },
 ];
 
-export default function Sidebar({ watchlist, onSelectStock }) {
+export default function Sidebar({ watchlist, onSelectStock, user, onOpenAuth, onUserChange }) {
     const [trendingStocks, setTrendingStocks] = useState([]);
 
     useEffect(() => {
@@ -67,61 +68,71 @@ export default function Sidebar({ watchlist, onSelectStock }) {
 
     return (
         <aside className={styles.sidebar}>
-            <div>
-                <h3 id="sidebar-trending-title" className={styles.sectionTitle}>Trending Stocks</h3>
-                <div className={styles.trendingContainer}>
-                    <div className={styles.trendingTrack}>
-                        {/* Duplicate list for seamless loop */}
-                        {[...displayStocks, ...displayStocks].map((stock, index) => (
-                            <div
-                                key={`trending-${stock.symbol}-${index}`}
-                                className={styles.stockItem}
-                                onClick={() => onSelectStock(stock.symbol)}
-                            >
-                                <div>
-                                    <div className={styles.symbol}>{stock.symbol}</div>
-                                    <div className={styles.name}>{stock.name}</div>
-                                </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <div className={styles.price}>
-                                        {stock.price === '...' ? '...' : `$${typeof stock.price === 'number' ? stock.price.toFixed(2) : stock.price}`}
+            <div className={styles.scrollableContent}>
+                <div>
+                    <h3 id="sidebar-trending-title" className={styles.sectionTitle}>Trending Stocks</h3>
+                    <div className={styles.trendingContainer}>
+                        <div className={styles.trendingTrack}>
+                            {/* Duplicate list for seamless loop */}
+                            {[...displayStocks, ...displayStocks].map((stock, index) => (
+                                <div
+                                    key={`trending-${stock.symbol}-${index}`}
+                                    className={styles.stockItem}
+                                    onClick={() => onSelectStock(stock.symbol)}
+                                >
+                                    <div>
+                                        <div className={styles.symbol}>{stock.symbol}</div>
+                                        <div className={styles.name}>{stock.name}</div>
                                     </div>
-                                    <div className={`${styles.change} ${stock.change.startsWith('+') ? styles.positive : stock.change.startsWith('-') ? styles.negative : ''}`}>
-                                        {stock.change}
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div className={styles.price}>
+                                            {stock.price === '...' ? '...' : `$${typeof stock.price === 'number' ? stock.price.toFixed(2) : stock.price}`}
+                                        </div>
+                                        <div className={`${styles.change} ${stock.change.startsWith('+') ? styles.positive : stock.change.startsWith('-') ? styles.negative : ''}`}>
+                                            {stock.change}
+                                        </div>
                                     </div>
                                 </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 className={styles.sectionTitle}>Your Watchlist</h3>
+                    <div className={styles.stockList}>
+                        {watchlist.length === 0 ? (
+                            <div className={styles.emptyState}>
+                                {!user ? 'Sign in to access watchlist and other features' : 'No stocks in watchlist'}
                             </div>
-                        ))}
+                        ) : (
+                            watchlist.map((stock, index) => (
+                                <div
+                                    key={`watchlist-${stock.symbol}-${index}`}
+                                    className={styles.stockItem}
+                                    onClick={() => onSelectStock(stock.symbol)}
+                                >
+                                    <div>
+                                        <div className={styles.symbol}>{stock.symbol}</div>
+                                        <div className={styles.name}>{stock.companyName}</div>
+                                    </div>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div className={styles.price}>${typeof stock.price === 'number' ? stock.price.toFixed(2) : stock.price}</div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
             </div>
 
-            <div>
-                <h3 className={styles.sectionTitle}>Your Watchlist</h3>
-                <div className={styles.stockList}>
-                    {watchlist.length === 0 ? (
-                        <div className={styles.emptyState}>
-                            No stocks in watchlist
-                        </div>
-                    ) : (
-                        watchlist.map((stock, index) => (
-                            <div
-                                key={`watchlist-${stock.symbol}-${index}`}
-                                className={styles.stockItem}
-                                onClick={() => onSelectStock(stock.symbol)}
-                            >
-                                <div>
-                                    <div className={styles.symbol}>{stock.symbol}</div>
-                                    <div className={styles.name}>{stock.companyName}</div>
-                                </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <div className={styles.price}>${typeof stock.price === 'number' ? stock.price.toFixed(2) : stock.price}</div>
-                                </div>
-                            </div>
-                        ))
-                    )}
-                </div>
+            <div className={styles.authFooter}>
+                <AuthButton
+                    user={user}
+                    onOpenAuth={onOpenAuth}
+                    onUserChange={onUserChange}
+                />
             </div>
-        </aside>
+        </aside >
     );
 }

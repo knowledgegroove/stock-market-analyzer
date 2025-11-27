@@ -52,7 +52,7 @@ export default function NewsPanel({ news, symbol }) {
                             <p className={styles.summary}>{item.summary}</p>
                             <div className={styles.meta}>
                                 <span className={styles.source}>{item.source}</span>
-                                <span>{new Date(item.datetime * 1000).toLocaleDateString()}</span>
+                                <span>{new Date(item.datetime * 1000).toLocaleDateString('en-US')}</span>
                             </div>
                         </a>
                     ))

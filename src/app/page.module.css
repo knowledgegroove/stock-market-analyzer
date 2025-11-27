@@ -42,6 +42,20 @@
   padding-top: 2rem;
 }
 
+.headerRow {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 2rem;
+}
+
+.headerRow>div:first-child {
+  flex: 1;
+}
+
+
 .logoContainer {
   margin-bottom: 1.5rem;
   animation: fadeInScale 0.8s ease-out;
