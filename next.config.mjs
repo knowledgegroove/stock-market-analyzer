@@ -3,7 +3,7 @@
 const nextConfig = {
   // basePath: '/stock-market-analyzer',
   // assetPrefix: '/stock-market-analyzer',
-  reactStrictMode: true,
+  // reactStrictMode: true,
 };
 
 export default nextConfig;
