@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
+// next.config.mjs
 const nextConfig = {
-  /* config options here */
+  basePath: '/stock-market-analyser',
+  assetPrefix: '/stock-market-analyser',
+  reactStrictMode: true,
 };
 
 export default nextConfig;
