@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import AuthButton from './AuthButton';
+import ThemeToggle from './ThemeToggle';
 import styles from './Sidebar.module.css';
 
 const TRENDING_SYMBOLS = [
@@ -127,6 +128,7 @@ export default function Sidebar({ watchlist, onSelectStock, user, onOpenAuth, on
             </div>
 
             <div className={styles.authFooter}>
+                <ThemeToggle />
                 <AuthButton
                     user={user}
                     onOpenAuth={onOpenAuth}

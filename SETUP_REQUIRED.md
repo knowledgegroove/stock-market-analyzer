@@ -49,4 +49,4 @@ create policy "Users can delete own watchlist"
 
 ---
 
-**After completing this setup, the watchlist will sync to the cloud for all your devices!** 🎉
+**Nofter completing this setup, the watchlist will sync to the cloud for all your devices!** 🎉

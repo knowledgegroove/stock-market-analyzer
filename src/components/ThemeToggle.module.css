@@ -1,0 +1,24 @@
+.toggleButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border-radius: 50%;
+    color: var(--foreground);
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+    margin-right: 1rem;
+}
+
+.toggleButton:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+}
+
+[data-theme='light'] .toggleButton {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme='light'] .toggleButton:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
