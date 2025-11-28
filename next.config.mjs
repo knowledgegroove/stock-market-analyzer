@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 // next.config.mjs
 const nextConfig = {
-  basePath: '/stock-market-analyser',
-  assetPrefix: '/stock-market-analyser',
+  basePath: '/stock-market-analyzer',
+  assetPrefix: '/stock-market-analyzer',
   reactStrictMode: true,
 };
 
